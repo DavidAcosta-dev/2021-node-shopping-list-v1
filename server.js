@@ -35,9 +35,12 @@ app.get('/shopping-list', (req, res) => {
 
 app.post('/shopping-list', (req, res) => {
 
-  if (!req.body.name || !req.body.budget) {
-    res.status(400).send("please check your shopping item object");
-    res.end();
+  const requiredFields = ["name", "budget"];
+  for (let i = 0; i < requiredFields.length; i++) {
+    if (!req.body[requiredFields[i]]) {
+      res.status(400).send(`missing field "${requiredFields[i]}" in shopping item object`);
+      res.end();
+    }
   }
 
   const { name, budget } = req.body;
@@ -52,25 +55,48 @@ app.post('/shopping-list', (req, res) => {
 //===========================================================================================//
 //===========================================================================================//
 
-app.post('/recipes', (req, res) => {
+app.get('/recipes', (req, res) => {
+  res.json(Recipes.get()); //using a custom method on the Recipes model
+})
 
-  if ((!req.body.name || !req.body.ingredients) || req.body.ingredients.length < 1) {
-    res.status(400).send("please check your recipe object");
+
+app.post('/recipes', (req, res) => {
+  const requiredFields = ["name", "ingredients"];
+  for (let i = 0; i < requiredFields.length; i++) {
+    if (!req.body[requiredFields[i]]) {
+      res.status(400).send(`missing field "${requiredFields[i]}" in recipe object`);
+      res.end();
+    }
+  }
+  const { name, ingredients } = req.body;
+
+  if (ingredients.length < 1) {
+    res.status(400).send("please add ingredients to your recipe object");
     res.end();
   }
-
-  const { name, ingredients } = req.body;
 
   Recipes.create(name, ingredients);
 
   res.send(`Successfully created "${name}" recipe!`);
   res.end();
-})
+});
 
+//vvv same as other post, just simplified req.body validator vvv
+// app.post('/recipes', (req, res) => {
 
-app.get('/recipes', (req, res) => {
-  res.json(Recipes.get()); //using a custom method on the Recipes model
-})
+//   if ((!req.body.name || !req.body.ingredients) || req.body.ingredients.length < 1) {
+//     res.status(400).send("please check your recipe object");
+//     res.end();
+//   }
+
+//   const { name, ingredients } = req.body;
+
+//   Recipes.create(name, ingredients);
+
+//   res.send(`Successfully created "${name}" recipe!`);
+//   res.end();
+// });
+
 
 
 app.listen(process.env.PORT || 8080, () => {
