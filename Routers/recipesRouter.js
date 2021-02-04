@@ -75,7 +75,7 @@ router.delete('/:id', (req, res) => {
 
 
 router.put('/:id', (req, res) => {
-    //validate url id first:
+    //validate url id first (this actually doesn;t work because if they don't have anuything in the url, then this endpoint never gets hit):
     if (!req.params.id) {
         res.status(400).send('Missing item recipe id in the url. (Make sure it matches the item id)');
         res.end();
