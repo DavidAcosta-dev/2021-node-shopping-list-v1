@@ -1,4 +1,5 @@
 
+const { json } = require('body-parser');
 const express = require('express');
 
 const morgan = require('morgan');  // we'll use morgan to log the HTTP layer
@@ -32,13 +33,18 @@ Recipes.create('pizza', ['dough', 'sauce', 'pepperoni', 'cheese', 'oil']);
 app.get('/shopping-list', (req, res) => {
   res.json(ShoppingList.get());
 });
+//----------------------------------------------------------------END of GET---------------------------------------//
+
+
 
 app.post('/shopping-list', (req, res) => {
 
   const requiredFields = ["name", "budget"];
   for (let i = 0; i < requiredFields.length; i++) {
     if (!req.body[requiredFields[i]]) {
-      res.status(400).send(`missing field "${requiredFields[i]}" in shopping item object`);
+      const errorMsg = `missing field "${requiredFields[i]}" in shopping item object`;
+      console.error(errorMsg);
+      res.status(400).send(errorMsg);
       res.end();
     }
   }
@@ -49,7 +55,45 @@ app.post('/shopping-list', (req, res) => {
   ShoppingList.create(name, budget);
   res.status(201).send(`Successfully created ${name} shopping list item`);
   res.end();
+});
+//----------------------------------------------------------------END of POST---------------------------------------//
+
+
+app.put('/shopping-list/:id', (req, res) => {
+  const requiredFields = ['name', 'budget', 'id'];
+  for (let i = 0; i < requiredFields.length; i++) {
+    if (!req.body[requiredFields[i]]) {
+      const errorMsg = `Missing "${requiredFields[i]}" field in req.body`;
+      res.status(400).send(errorMsg);
+      res.end();
+    };
+  };
+
+  const { name, budget, id } = req.body;
+  const urlId = req.params.id;
+  if (id !== urlId) {
+    const errorMsg = `req.body.id does not match url id`;
+    res.status(400).send(errorMsg);
+    res.end();
+  }
+
+  ShoppingList.update({ name, budget, id });
+  res.status(204).end();
+});
+//----------------------------------------------------------------END of PUT---------------------------------------//
+
+
+app.delete('/shopping-list/:id', (req, res) => {
+  const { id } = req.params;
+  console.log(id);
+  ShoppingList.delete(id);
+  res.status(204);
+  res.end();
 })
+//----------------------------------------------------------------END of DELETE---------------------------------------//
+
+
+
 
 //===========================================================================================//
 //===========================================================================================//
@@ -57,29 +101,36 @@ app.post('/shopping-list', (req, res) => {
 
 app.get('/recipes', (req, res) => {
   res.json(Recipes.get()); //using a custom method on the Recipes model
-})
+});
+//---------------------------END of GET------------------------------
 
 
 app.post('/recipes', (req, res) => {
   const requiredFields = ["name", "ingredients"];
   for (let i = 0; i < requiredFields.length; i++) {
     if (!req.body[requiredFields[i]]) {
-      res.status(400).send(`missing field "${requiredFields[i]}" in recipe object`);
+      const errorMsg = `missing field "${requiredFields[i]}" in recipe object`;
+      console.error(errorMsg);
+      res.status(400).send(errorMsg);
       res.end();
     }
   }
   const { name, ingredients } = req.body;
 
   if (ingredients.length < 1) {
-    res.status(400).send("please add ingredients to your recipe object");
+    const errorMsg = "please add ingredients to your recipe object";
+    console.error(errorMsg);
+    res.status(400).send(errorMsg);
     res.end();
   }
 
-  Recipes.create(name, ingredients);
-
-  res.send(`Successfully created "${name}" recipe!`);
+  const item = Recipes.create(name, ingredients);
+  const successMsg = `Successfully created ${name} recipe!`;
+  res.status(201).json({ successMsg, item });
+  // res.status(201).json(item);   <-----this is the simple response of just returning the item created
   res.end();
 });
+//---------------------------END of POST------------------------------
 
 //vvv same as other post, just simplified req.body validator vvv
 // app.post('/recipes', (req, res) => {
@@ -96,6 +147,50 @@ app.post('/recipes', (req, res) => {
 //   res.send(`Successfully created "${name}" recipe!`);
 //   res.end();
 // });
+
+app.delete('/recipes/:id', (req, res) => {
+  const { id } = req.params;
+  console.log(id);
+  Recipes.delete(id);
+  res.status(204);
+  res.end();
+});
+//---------------------------END of DELETE------------------------------
+
+
+
+app.put('/recipes/:id', (req, res) => {
+  //validate url id first:
+  if (!req.params.id) {
+    res.status(400).send('Missing item recipe id in the url. (Make sure it matches the item id)');
+    res.end();
+  }
+
+  const requiredFields = ['name', 'ingredients', 'id']; // check for the req.body object's fields.
+  for (let i = 0; i < requiredFields.length; i++) {
+    if (!req.body[requiredFields[i]]) {
+      const errorMsg = `Missing ${requiredFields[i]} field in req.body`;
+      res.status(400).send(errorMsg);
+      res.end();
+    }
+  }
+
+  const { name, ingredients, id } = req.body; //looks like all fields are there, lets destruct
+  const urlId = req.params.id;
+  //now checking if url id matches body id
+  if (urlId !== id) {
+    const errorMsg = 'Your body id and url id do not match';
+    res.status(400).send(errorMsg);
+    res.end();
+  };
+
+  Recipes.update({ name, ingredients, id });
+
+  res.status(204);
+  res.end();
+
+});
+//---------------------------END of PUT------------------------------
 
 
 
