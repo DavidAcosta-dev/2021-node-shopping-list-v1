@@ -8,12 +8,12 @@ const bodyParser = require('body-parser');
 
 // we import the ShoppingList model, which we'll
 // interact with in our GET endpoint
-const {ShoppingList} = require('./models');
+const { ShoppingList } = require('./models');
 
 const jsonParser = bodyParser.json();
 const app = express();
 
-// log the http layer
+// log the http layer 
 app.use(morgan('common'));
 
 // we're going to add some items to ShoppingList
