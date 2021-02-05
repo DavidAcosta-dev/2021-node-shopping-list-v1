@@ -41,7 +41,7 @@ router.post('/', (req, res) => {
 
     const item = Recipes.create(name, ingredients);
     const successMsg = `Successfully created ${name} recipe!`;
-    res.status(201).json({ successMsg, item });
+    res.status(201).json(item);
     // res.status(201).json(item);   <-----this is the simple response of just returning the item created
     res.end();
 });
@@ -99,9 +99,9 @@ router.put('/:id', (req, res) => {
         res.end();
     };
 
-    Recipes.update({ name, ingredients, id });
+    const updatedItem = Recipes.update({ name, ingredients, id });
 
-    res.status(204);
+    res.status(200).json(updatedItem);
     res.end();
 
 });

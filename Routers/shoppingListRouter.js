@@ -37,8 +37,8 @@ router.post('/', (req, res) => {
     const { name, budget } = req.body;
 
 
-    ShoppingList.create(name, budget);
-    res.status(201).send(`Successfully created ${name} shopping list item`);
+    const item = ShoppingList.create(name, budget);
+    res.status(201).json(item);
     res.end();
 });
 //----------------------------------------------------------------END of POST---------------------------------------//
@@ -62,8 +62,9 @@ router.put('/:id', (req, res) => {
         res.end();
     }
 
-    ShoppingList.update({ name, budget, id });
-    res.status(204).end();
+    const updatedItem = ShoppingList.update({ name, budget, id });
+    res.status(200).send(updatedItem);
+    res.end();
 });
 //----------------------------------------------------------------END of PUT---------------------------------------//
 
