@@ -60,7 +60,7 @@ const closeServer = () => {
     server.close(err => {
       if (err) {
         console.error(err);
-        console.log("Couldnt close server!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        console.log("Couldnt close")
         reject(err);
         return; //return so we don't call resolve as well
       };//end of if err
